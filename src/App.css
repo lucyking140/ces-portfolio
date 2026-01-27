@@ -1,4 +1,763 @@
-#root {
+.container {
+  display: flex;
+  flex-direction: column;
+  /*   height: 100%;
+  width: 100%; */
+  justify-content: center; /* start all items on the left of the FB */
+  /*   gap: 20px; /* gap between items in direction of flex-dir (cols in this case) */
+  align-items: flex-start; /* aligns items in the NON flex-dir (aka rows in this case) */
+  /*   font-family: Georgia, sans-serif; */
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  padding-left: 10vw;
+  padding-right: 10vw;
+  /* position: relative; */
+}
+
+.title-header {
+  /*   background-color: powderblue; */
+  /*   width: 90%; */
+  /*   height: 5%; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4vh;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  gap: 10px;
+  /*   align-self: flex-start;
+ */
+}
+
+/* title-header for desktop */
+@media only screen and (min-width: 1000px) {
+  .title-header {
+    /*   background-color: powderblue; */
+    width: 100%;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 5px;
+    /*     align-self: flex-end; */
+  }
+}
+
+.content-container {
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  gap: 30px;
+}
+
+.side-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 40vh;
+  background-color: lightblue;
+  padding-top: 30px;
+}
+
+.side-link {
+  font-size: 1.4rem;
+}
+
+.header-links {
+  /*   height: 100%; */
+  /*   background-color: pink; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px; /* TODO: set as css variable to change --> NOTE: use vw, vh; relative measures match height, speciifc ones override/expand height */
+  align-items: flex-start;
+}
+
+/* header-links for desktop */
+@media only screen and (min-width: 1000px) {
+  .header-links {
+    width: 40%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+}
+
+.title {
+  /*   width: 90%; */
+  font-size: 3.2rem;
+  font-weight: 800;
+}
+
+/* title for desktop */
+@media only screen and (min-width: 1000px) {
+  .title {
+    font-size: 4rem;
+  }
+}
+
+.subtitle {
+  width: 100%;
+  font-size: 1.5rem;
+  /* color: #585959; */
+  color: #000000;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* title for desktop */
+@media only screen and (min-width: 1000px) {
+  .subtitle {
+    font-size: 1.2rem;
+    /* color: #585959; */
+  }
+}
+
+.desc {
+  width: 100%;
+  text-align: start;
+  font-size: 2rem;
+  font-weight: 800;
+  /*   background-color: lightgrey; */
+}
+
+/* for desktop */
+@media only screen and (min-width: 1000px) {
+  .desc {
+    font-weight: 800;
+  }
+}
+
+.proj-container {
+  display: flex;
+  /*   background-color: lightgreen; */
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5% 0%;
+  /*   overflow: scroll; */
+  gap: 50px;
+}
+
+/* proj-container for desktop */
+@media only screen and (min-width: 1000px) {
+  .proj-container {
+    display: flex;
+    /*   background-color: lightgreen; */
+    flex-direction: column;
+    /*       height: 30%; */
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 2% 0%;
+    overflow: hidden;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+}
+
+/* INSESRTING NEW STYLING HERE */
+
+.bottom-proj {
+  display: flex;
+  /*     background-color: lightgreen; */
+  flex-direction: row;
+  /*     height: 30%; */
+  width: 100%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 1% 0%;
+  overflow: hidden;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+/* In mobile -- this is just similar to a bottom-proj */
+.top-proj {
+  /*   background-color: lightblue; */
+  display: flex;
+  flex-direction: column-reverse;
+  /*   width: 93%; */
+  /*   height: 50vh; */
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 1%;
+  gap: 10px;
+  align-self: flex-start;
+  /*   padding-right: 3vh; /* to match bottom-proj gap */
+}
+
+/* top proj for desktop */
+@media only screen and (min-width: 1000px) {
+  .top-proj {
+    display: flex;
+    flex-direction: row;
+    width: 93%;
+    height: 50vh;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 1%;
+    gap: 0px;
+  }
+}
+
+.top-proj-pad {
+  width: 70px;
+  height: 100%;
+}
+
+.project {
+  display: flex;
+  /*   overflow: hidden; /* to hide borders of picture */
+  flex-direction: column;
+  width: 90%;
+  height: 100%;
+  /*   background-color: lightgrey; */
+  /*   border-radius: 4px; */
+}
+
+/* project for desktop */
+@media only screen and (min-width: 1000px) {
+  .project {
+    display: flex;
+    overflow: hidden; /* to hide borders of picture */
+    flex-direction: column;
+    width: 30%;
+    /*       height: 100%; */
+    /*       background-color: lightgrey; */
+    /*       border-radius: 8px; */
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+  }
+}
+
+.project:hover {
+  transform: scale(1.005);
+}
+
+.proj-empty {
+  outline: dashed 1px darkgrey;
+  /*   height: 1000px; */
+  height: 100%;
+  width: 20%;
+}
+
+.proj-empty:hover {
+  transform: scale(1); /* removing hover for empty/unclickable projects */
+}
+
+.proj-img {
+  width: 20vw;
+}
+
+.top-proj .proj-img {
+  width: 60vw;
+}
+
+/* NOTE: height/width need to be specified on the img, not the proj-img div */
+.proj-img img {
+  height: 20vh;
+  width: 55vh;
+  object-fit: cover;
+  /*   overflow: hidden; */
+}
+
+.top-proj .proj-img img {
+  height: 20vh;
+}
+
+/* proj-img for desktop */
+@media only screen and (min-width: 1000px) {
+  .proj-img img {
+    height: 20vh;
+  }
+
+  .top-proj .proj-img img {
+    height: 50vh;
+    width: 60vw;
+  }
+}
+
+/*  For entire container with proj info (num, title, date) */
+.proj-info-box {
+  z-index: -1;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-right: 1vw;
+  padding-top: 1vw;
+  align-items: center;
+  gap: 3vw;
+  overflow: hidden;
+  width: 100%;
+  padding-left: 20px; /* not ideal just can't get the number to stop disappearing?? */
+}
+
+/* for desktop */
+@media only screen and (min-width: 1000px) {
+  .proj-info-box {
+    gap: 1vw;
+  }
+}
+/* Box containing contents of title-date-subheading (NOT the date) */
+
+.proj-title-date-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.top-proj .proj-title-date-box {
+  align-items: flex-start;
+  /*   width: 45vw; */
+  /*   padding-right: 2vw; */
+}
+
+/* for desktop */
+@media only screen and (min-width: 1000px) {
+  .top-proj .proj-title-date-box {
+    align-items: flex-start;
+    width: 45vw;
+    padding-right: 2vw;
+  }
+}
+
+.top-proj .proj-title-date-box:hover {
+  transform: scale(1.005);
+}
+
+/* Actual title for the week */
+
+.proj-title {
+  /*   height: 25%; */
+  /*   background-color: lightgrey; */
+  width: 100%;
+  padding: 0px;
+  font-style: bold;
+  font-size: 2rem;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* proj-title for desktop */
+@media only screen and (min-width: 1000px) {
+  .proj-title {
+    height: 35%;
+    width: 15vw;
+    /*     background-color: lightgrey; */
+    /*     padding-left: 3%; */
+    font-size: 1.2rem;
+  }
+}
+
+.top-proj .proj-title {
+  /*   background-color: red; */
+  font-size: 1.5rem;
+  text-align: left;
+}
+
+/* NOT shown in mobile version */
+.top-proj .proj-subtitle {
+  font-style: italic;
+  font-size: 1rem;
+  text-align: right;
+  max-width: 95%;
+  display: none;
+  /*   font-weight: 500; */
+}
+
+/* font sizes for desktop */
+@media only screen and (min-width: 1000px) {
+  .top-proj .proj-subtitle {
+    display: flex;
+  }
+}
+
+.proj-date {
+  font-size: 1.2rem;
+  /*   opacity: 0.7; */
+  color: #a6a6a6;
+  font-weight: 500;
+}
+
+.top-proj .proj-date {
+  padding-top: 5px;
+  font-size: 1.2rem;
+}
+
+/* font sizes for desktop */
+@media only screen and (min-width: 1000px) {
+  .proj-date {
+    font-size: 0.9rem;
+    color: #a6a6a6;
+    font-weight: 500;
+  }
+
+  .top-proj .proj-date {
+    padding-top: 5px;
+  }
+}
+
+.week-num {
+  font-size: 2.2rem;
+  min-width: 25px;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/*  Formatting this as if it was the bottom-proj on mobile */
+.top-proj .week-num {
+  display: none;
+}
+
+/* for desktop */
+@media only screen and (min-width: 1000px) {
+  .week-num {
+    font-size: 1.5rem;
+  }
+
+  .top-proj .week-num {
+    display: flex;
+    font-size: 4.5rem;
+    padding-right: 2vh;
+    min-width: 3vw;
+  }
+}
+
+.hl {
+  border-top: 1px solid black;
+  width: 100%;
+  margin-bottom: -2vh;
+  margin-top: -2vh;
+}
+
+.proj-container .hl {
+  width: 100%;
+  margin-bottom: -2vh;
+  margin-top: -3vh;
+}
+
+.vl {
+  border-left: 1px solid black;
+  height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  padding: 0px;
+  color: #000000;
+  font-weight: 700;
+  /*   display: flex;
+  flex-direction: column;
+  align-items: flex-start; */
+}
+
+a:visited {
+  /*   color: #000000; */
+  color: #585959;
+}
+
+.rp a {
+  text-decoration: underline;
+}
+
+.rp a:after {
+  /* padding-left: 10px;
+  width: 15px;
+  height: 15px;
+  content: url('/icons/right-up.png'); */
+  background-image: url("/icons/right-up.png");
+  background-size: 25px 25px;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  content: "";
+}
+
+.rp .header-buttons,
+.header-row a:after {
+  background-image: none;
+}
+
+/* Source: https://getcssscan.com/css-buttons-examples */
+button {
+  border-radius: 8px;
+  border-width: 0;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 2rem;
+}
+
+button:hover {
+  background-color: #c7c9c8;
+}
+
+button:active {
+  background-color: #b3b5b4;
+}
+
+/* h1 {
+  font-size: 4rem;
+} */
+
+/* p {
+  font-size: 3rem;
+} */
+
+/* font sizes for desktop */
+@media only screen and (min-width: 1000px) {
+  /*   p {
+    font-size: 1.2rem;
+  } */
+
+  /* adjusting font sizes */
+  button {
+    font-size: 1.2rem;
+  }
+
+  /*   h1 {
+    font-size: 3.5rem;
+  } */
+}
+
+/* .proj-title p {
+  padding-left: 3%;
+  font-size: 3.5rem;
+}
+ */
+.gothic-a1-semibold {
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+/* ******** For project pages (indicated by rp class) *************** */
+
+.rp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rp .container {
+  width: 80%;
+  /*   background-color: lightblue; */
+  padding-left: 0px;
+  padding-right: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* for desktop */
+@media only screen and (min-width: 1000px) {
+  .rp .container {
+    width: 60%;
+  }
+}
+
+.rp .content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 200%;
+  /*   background-color: lightpink; */
+  /*   font-family: Georgia, sans-serif; */
+}
+
+.rp .title-heading {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4vh;
+}
+
+.rp .title {
+  text-align: start;
+  font-size: 3.3rem;
+  font-weight: 800;
+}
+
+.rp .subtitle {
+  /*   width: 100%; */
+  width: auto;
+  text-align: start;
+  font-size: 1.6rem;
+  font-style: italic;
+}
+
+.rp .date {
+  font-size: 1.3rem;
+  color: #a6a6a6;
+  text-align: start;
+  font-weight: 500;
+}
+
+.rp .header-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rp .header-buttons {
+  display: flex;
+  flex-direction: row;
+  /*   width: 20vw; */
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.rp button {
+  font-size: 1.2rem;
+}
+
+.rp .hl {
+  margin-top: 0vh;
+  margin-bottom: 0vh;
+}
+
+.rp h3 {
+  width: 100%;
+  margin-top: 0vh;
+  margin-bottom: -2vh;
+}
+
+/* Handling image formatting */
+
+.rp .allimgs {
+  display: flex;
+  /*     overflow: hidden; */
+  flex-direction: column;
+  /*     height: 50%;  */
+  /*     max-width: 100vh; */
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  /*   padding-left: calc(var(--wid) / 8); */
+  align-self: center;
+}
+
+.rp .imgbox {
+  display: flex;
+  /*     overflow: hidden; */
+  flex-direction: column;
+  /*     height: 50%;  */
+  /*     max-width: 100vh; */
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.rp .imgcap {
+  /*   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  font-size: 2rem;
+  font-style: italic; */
+  font-size: 1.3rem;
+  line-height: 150%;
+  color: #585959;
+  font-weight: 500;
+}
+
+/* imgcap for desktop */
+@media only screen and (min-width: 1000px) {
+  .rp .imgcap {
+    font-size: 1.1rem;
+  }
+}
+
+.rp .center-fit {
+  object-fit: cover;
+  width: 100%;
+  height: 90%;
+}
+
+.rp .like-icon {
+  width: 25px;
+}
+
+.proj-menu-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: #000000;
+  cursor: pointer;
+  /* width: 12vw; */
+  /* border: 1px solid #000000; */
+}
+
+.proj-icon {
+  width: 20px;
+  display: block;
+  transform: rotate(90deg);
+}
+
+.proj-icon.open {
+  transform: rotate(0deg);
+}
+
+.proj-drop-menu {
+  position: absolute;
+  top: 3vh;
+  /* left: 60vw; */
+  /* left: 0; */
+  z-index: 10;
+  width: inherit;
+  /* margin-left: -10vw; */
+  padding: 0;
+  list-style: none;
+  background: white;
+  /* border: 1px solid #000000; */
+  /* box-shadow: 0 2px 5px rgba(0,0,0,0.2); */
+}
+
+.proj-menu-title {
+  border: 1px solid #000000;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /* width: 100%; */
+  height: 2vh;
+  padding: 12px;
+  gap: 10px;
+}
+
+.proj-drop-menu li {
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid #000000;
+  font-weight: 600;
+}
+
+.proj-drop-menu li:hover {
+  background: #f1f1f1;
+}
+
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +798,4 @@
 
 .read-the-docs {
   color: #888;
-}
+} */
