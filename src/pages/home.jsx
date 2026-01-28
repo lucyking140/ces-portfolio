@@ -26,7 +26,7 @@ function Home() {
             </div>
 
             <div className="proj-img">
-              <img src="solder.jpeg" />
+              <img src="hero_shot.jpeg" />
             </div>
           </Link>
         </div>
