@@ -41,22 +41,22 @@ export default function SolderingIntro() {
         {/* Description */}
         <div className="rp para">
           This was my first time soldering, so I started with the 12-pin header.
-          These were easier to solder because they stayed in place, but the pins
-          were very close together which made it challenging to avoid bridging
-          between the pins.
+          These were easier to solder because they stayed in place after the
+          first pin was connected, but the pins were very close together which
+          made it challenging to avoid bridging.
         </div>
 
         <div className="rp para">
           For the wire piece, I soldered two pieces of wire on one side of the
-          protoboard, then bent them in parallel around to the other side of the
-          board. I shaped the zig zag peice separately and soldered it last.
+          protoboard, then bent them in parallel around to the other side. I
+          shaped the zig zag peice separately and soldered it last.
         </div>
 
         <div className="rp para">
           The curves in the wire are a creative representation of a journey in
           life, such as a friendship. The wires begin together at one end of the
-          board and travel around to the other side, then the connection ends,
-          but the zigzag piece connects the two again via a meandering path.
+          board and travel around to the other side where the connection ends,
+          but the zigzag piece reconnects the two after a meandering journey.
         </div>
 
         {/* detail images with captions */}
@@ -79,8 +79,8 @@ export default function SolderingIntro() {
         <div className="rp imgbox">
           <img className="rp center-fit" src="front_bottom.jpeg" />
           <div className="rp imgcap">
-            Examples where the wire is soldered to the protoboard, both
-            perpendicular and at an angle closer to the board.
+            Examples where the wire is soldered perpendicularly and at a closer
+            angle to the protoboard.
           </div>
         </div>
 
