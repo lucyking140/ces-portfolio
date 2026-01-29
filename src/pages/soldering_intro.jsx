@@ -73,13 +73,13 @@ export default function SolderingIntro() {
 
         {/* pin header solders */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="back.jpeg" />
+          <img className="rp center-fit" src="back_new.jpeg" />
           <div className="rp imgcap">Soldering on the 12-pin header.</div>
         </div>
 
         {/* front bottom solders */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="front_bottom.jpeg" />
+          <img className="rp center-fit" src="front_bottom_new.jpeg" />
           <div className="rp imgcap">
             Examples where the wire is soldered both perpendicularly and at a
             smaller angle with the protoboard.
@@ -88,12 +88,28 @@ export default function SolderingIntro() {
 
         {/* front top solders */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="front_top.jpeg" />
+          <img className="rp center-fit" src="front_top_new.jpeg" />
           <div className="rp imgcap">
-            More examples of the soldered connections on the front side of the
-            board.
+            Soldered connections on the front side of the board.
           </div>
         </div>
+
+        {/* <div className="rp para">
+          Here's the same images as above but in different light since the
+          bright light might make the solder joints hard to see.
+        </div>
+
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="back_dark.jpeg" />
+        </div>
+
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="front_bottom_dark.jpeg" />
+        </div>
+
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="front_top_dark.jpeg" />
+        </div> */}
       </div>
     </div>
   );
