@@ -302,7 +302,7 @@ export default function Pcb() {
         <div className="rp para">
           Although made a few decades after the peak of the modernist era,
           Homage to the Square is representative of the movement’s broader
-          emphasis of the visual elements like shape and color that previous
+          emphasis on visual elements like shape and color that previous
           generations of artists had seen as a tool but not something to be
           appreciated independently. Similarly, the long geometric traces and
           circularly arranged components on my PCB invite viewers to appreciate
