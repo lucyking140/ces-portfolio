@@ -203,8 +203,8 @@ export default function Pcb() {
         <div className="model-container">
           <div className="model-title">
             click and drag model to rotate
-            <br />
-            (refresh if model doesn't rotate immediately :))
+            {/* <br />
+            (refresh if model doesn't rotate immediately :)) */}
           </div>
           {isLoading && (
             <div
@@ -253,11 +253,8 @@ export default function Pcb() {
         {/* TODO: Description */}
 
         <div className="rp para">
-          The board, tracks, and components on my pendant together form a series
-          of concentric circles. My goal was to mirror the ideology of modernist
-          art in the early 20th century, with an emphasis on refining art to its
-          simplest geometric and visual components. I was specifically inspired
-          by Josef Alber's{" "}
+          The board, tracks, and components on my pendant form a series of
+          concentric circles inspired by Josef Alber's{" "}
           <a
             href="https://www.metmuseum.org/art/collection/search/489056"
             target="_blank"
@@ -265,11 +262,10 @@ export default function Pcb() {
           >
             Homage to the Square
           </a>
-          , which is a series of colorful nested squares that tests the bounds
-          of depth and color through various arrangements of the same simple
-          square shape. Each piece is composed only of squares of various
-          colors, but he creates widely varying illusions of dimensionality and
-          colorful dissonance without a need for more expressive shapes.
+          , which portrays a series of nested squares that tests the bounds of
+          depth and color. Each piece is composed only of colored squares, but
+          Albers manages to create widely varying illusions of dimensionality
+          and colorful dissonance even without more expressive tools.
         </div>
 
         <div className="rp imgbox">
@@ -287,12 +283,12 @@ export default function Pcb() {
         </div>
 
         <div className="rp para">
-          Like colors and shapes a PCB allows for limitless possibilities, from
-          the customizable shape of the board itself to the placement and choice
-          of components. Organizing the board and its elements into a series of
-          circles instead of squares still allows each component to be
-          appreciated through the simplicity of its arrangement, but also
-          represents a single concentric spiral unifying each element.
+          Like colors and shapes, a PCB allows for limitless possibilities, from
+          the customizable shape of the board to the placement and choice of
+          components. Organizing the board and its elements into a series of
+          circles allows each component to be admired independently while also
+          appreciating the functionality of their collective outcome, just like
+          with Albers' squares.
         </div>
 
         <div className="rp imgbox">
@@ -306,21 +302,25 @@ export default function Pcb() {
         <div className="rp para">
           Although made a few decades after the peak of the modernist era,
           Homage to the Square is representative of the movement’s broader
-          questioning of the visual tools like shape and color that previous
-          generations of artists utilized without second thought. The period of
-          dramatic change soon after the industrial revolution and World War I
-          that led artists like Albers to reevaluate the role of these visual
-          elements reminds me of today’s similarly turbulent environment.
+          emphasis of the visual elements like shape and color that previous
+          generations of artists had seen as a tool but not something to be
+          appreciated independently. Similarly, the long geometric traces and
+          circularly arranged components on my PCB invite viewers to appreciate
+          the beauty of the circuit itself, not just its functionality.
         </div>
 
         <div className="rp para">
-          With the rise of the internet and generative AI, many of us are also
-          questioning the foundations of our personal and working lives that we
-          may have once assumed to be immutable. Applying Albers’ principles to
-          a PCB board that visually represents the ubiquitousness of electronics
-          in the modern world translates this sense of uncertainty directly onto
-          its source, while also looking back to an artistic movement that
-          grappled with the same sense of change.
+          The period of dramatic change soon after the industrial revolution and
+          World War I that led artists like Albers to reevaluate the role of
+          these visual elements is also reminiscent of today’s turbulent
+          environment. With the rise of the internet and generative AI, many of
+          us are also questioning foundations of our personal and working lives
+          that we may have once assumed to be immutable. Applying Albers’
+          principles to a PCB board that visually represents the ubiquitousness
+          of electronics in the modern world translates this sense of
+          technological uncertainty directly onto its source, while also tying
+          back to an artistic movement that grappled with a remarkably similar
+          sense of change.
         </div>
 
         {/* Video of the PCB */}
