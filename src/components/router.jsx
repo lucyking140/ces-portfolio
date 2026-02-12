@@ -2,6 +2,7 @@ import * as React from "react";
 import { Switch, Route } from "wouter";
 import SolderingIntro from "../pages/soldering_intro.jsx";
 import Home from "../pages/home.jsx";
+import Pcb from "../pages/pcb.jsx";
 
 /**
  * The router is imported in app.jsx
@@ -17,6 +18,7 @@ const PageRouter = () => (
   <Switch>
     <Route path={`${basePath}`} component={Home} />
     <Route path={`${basePath}soldering-intro`} component={SolderingIntro} />
+    <Route path={`${basePath}pcb`} component={Pcb} />
   </Switch>
 );
 
