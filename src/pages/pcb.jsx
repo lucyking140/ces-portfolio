@@ -262,7 +262,7 @@ export default function Pcb() {
           >
             Homage to the Square
           </a>
-          , which portrays a series of nested squares that tests the bounds of
+          , which portrays a series of nested squares and tests the bounds of
           depth and color. Each piece is composed only of colored squares, but
           Albers manages to create widely varying illusions of dimensionality
           and colorful dissonance even without more expressive tools.
@@ -306,21 +306,21 @@ export default function Pcb() {
           generations of artists had seen as a tool but not something to be
           appreciated independently. Similarly, the long geometric traces and
           circularly arranged components on my PCB invite viewers to appreciate
-          the beauty of the circuit itself, not just its functionality.
+          the beauty of the foundational elements of a circuit, not just its
+          functionality.
         </div>
 
         <div className="rp para">
           The period of dramatic change soon after the industrial revolution and
-          World War I that led artists like Albers to reevaluate the role of
-          these visual elements is also reminiscent of today’s turbulent
-          environment. With the rise of the internet and generative AI, many of
-          us are also questioning foundations of our personal and working lives
-          that we may have once assumed to be immutable. Applying Albers’
-          principles to a PCB board that visually represents the ubiquitousness
-          of electronics in the modern world translates this sense of
-          technological uncertainty directly onto its source, while also tying
-          back to an artistic movement that grappled with a remarkably similar
-          sense of change.
+          World War I that motivated this movement is also reminiscent of
+          today’s turbulent environment. With the rise of the internet and
+          generative AI, many of us are also questioning foundations of our
+          personal and working lives that we may have once assumed to be
+          immutable. Applying Albers’ principles to a PCB board that visually
+          represents the ubiquitousness of electronics in the modern world
+          translates this sense of technological uncertainty directly onto its
+          source, while also looking back to an artistic movement that grappled
+          with a reassuringly similar sense of change.
         </div>
 
         {/* Video of the PCB */}
