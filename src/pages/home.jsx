@@ -64,30 +64,24 @@ function Home() {
   const projects = [
     {
       id: 1,
+      title: "• generative art •",
+      date: "1.26.2026",
+      link: "gen-art",
+      heroImage: "gen_art/hero.jpeg",
+    },
+    {
+      id: 2,
       title: "• pcb pendant •",
       date: "2.10.2026",
       link: "pcb",
       heroImage: "pcb/hero_2.jpeg",
-      modelPath: "./pcb/testing_no_background4.glb",
-      detailImages: [
-        "pcb/details.jpeg",
-        "pcb/side.jpeg",
-        "pcb/back.jpeg",
-        // Add more detail images here
-      ],
     },
     {
-      id: 2,
+      id: 3,
       title: "• soldering introduction •",
       date: "1.26.2026",
       link: "soldering-intro",
       heroImage: "soldering_intro/hero_shot.jpeg",
-      modelPath: null, // No model for this project
-      detailImages: [
-        // Add detail images here when available
-        // "soldering_intro/detail1.jpeg",
-        // "soldering_intro/detail2.jpeg",
-      ],
     },
   ];
 

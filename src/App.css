@@ -897,6 +897,7 @@ button:active {
   justify-content: center;
   gap: 5px;
   padding: 2vh 0vh;
+  width: 100%;
 }
 
 .rp .imgcap {
@@ -1025,4 +1026,11 @@ button:active {
   font-size: 0.8rem;
   text-align: right;
   /* font-weight: 700; */
+}
+
+.parallel-section {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
 }

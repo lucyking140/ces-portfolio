@@ -3,6 +3,7 @@ import { Switch, Route } from "wouter";
 import SolderingIntro from "../pages/soldering_intro.jsx";
 import Home from "../pages/home.jsx";
 import Pcb from "../pages/pcb.jsx";
+import GenArt from "../pages/gen_art.jsx";
 
 /**
  * The router is imported in app.jsx
@@ -19,6 +20,7 @@ const PageRouter = () => (
     <Route path={`${basePath}`} component={Home} />
     <Route path={`${basePath}soldering-intro`} component={SolderingIntro} />
     <Route path={`${basePath}pcb`} component={Pcb} />
+    <Route path={`${basePath}gen-art`} component={GenArt} />
   </Switch>
 );
 
