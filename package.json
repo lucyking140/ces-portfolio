@@ -13,6 +13,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.182.0",
+    "tone": "^15.1.22",
     "wouter": "^3.9.0"
   },
   "devDependencies": {
