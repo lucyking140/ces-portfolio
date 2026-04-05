@@ -6,6 +6,7 @@ import Pcb from "../pages/pcb.jsx";
 import GenArt from "../pages/gen_art.jsx";
 import ScrollToTop from "./scrollToTop";
 import TouchSynth from "../pages/capacitive_touch.jsx";
+import CapacitiveTouch from "../pages/cap_touch_home.jsx";
 
 /**
  * The router is imported in app.jsx
@@ -25,7 +26,11 @@ const PageRouter = () => (
       <Route path={`${basePath}soldering-intro`} component={SolderingIntro} />
       <Route path={`${basePath}pcb`} component={Pcb} />
       <Route path={`${basePath}gen-art`} component={GenArt} />
-      <Route path={`${basePath}capacitive-touch`} component={TouchSynth} />
+      <Route
+        path={`${basePath}capacitive-touch-interface`}
+        component={TouchSynth}
+      />
+      <Route path={`${basePath}capacitive-touch`} component={CapacitiveTouch} />
     </Switch>
   </>
 );
