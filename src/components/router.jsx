@@ -8,15 +8,15 @@ import ScrollToTop from "./scrollToTop";
 import TouchSynth from "../pages/cap_touch_interface.jsx";
 import CapacitiveTouch from "../pages/capacitive_touch.jsx";
 
-/**
- * The router is imported in app.jsx
- *
- * Our site just has two routes in it–Home and About
- * Each one is defined as a component in /pages
- * We use Switch to only render one route at a time https://github.com/molefrog/wouter#switch-
- */
-
 const basePath = "/ces-portfolio/";
+
+const NotFound = () => (
+  <div style={{ textAlign: "center", padding: "4rem" }}>
+    <h1>404 - Page Not Found</h1>
+    <p>The page you're looking for doesn't exist.</p>
+    <a href={basePath}>Go Home</a>
+  </div>
+);
 
 const PageRouter = () => (
   <>
@@ -31,6 +31,7 @@ const PageRouter = () => (
         component={TouchSynth}
       />
       <Route path={`${basePath}capacitive-touch`} component={CapacitiveTouch} />
+      <Route component={NotFound} />
     </Switch>
   </>
 );
