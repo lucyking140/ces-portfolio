@@ -5,8 +5,8 @@ import Home from "../pages/home.jsx";
 import Pcb from "../pages/pcb.jsx";
 import GenArt from "../pages/gen_art.jsx";
 import ScrollToTop from "./scrollToTop";
-import TouchSynth from "../pages/capacitive_touch.jsx";
-import CapacitiveTouch from "../pages/cap_touch_home.jsx";
+import TouchSynth from "../pages/cap_touch_interface.jsx";
+import CapacitiveTouch from "../pages/capacitive_touch.jsx";
 
 /**
  * The router is imported in app.jsx

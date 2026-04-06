@@ -1,735 +1,257 @@
-import { useEffect, useRef, useState } from "react";
-
-// ── CONFIG ────────────────────────────────────────────────────────────────────
-const HOLD_MUSIC_SRC = "./cap_touch/hold_music.mp3";
-const PLEASE_WAIT_SRC = "./cap_touch/hold_message.mp3"; // plays before hold music
-const HANG_UP_SRC = "./cap_touch/hang_up.mp3";
-const DIAL_TONE_SRC = "./cap_touch/dial_tone.mp3";
-
-// One MP3 per key, 1–7. Use any piano sample pack — name them however you like.
-const PIANO_SAMPLES = {
-  1: "./cap_touch/C_piano.mp3",
-  2: "./cap_touch/D_piano.mp3",
-  3: "./cap_touch/E_piano.mp3",
-  4: "./cap_touch/F_piano.mp3",
-  5: "./cap_touch/G_piano.mp3",
-  6: "./cap_touch/A_piano.mp3",
-  7: "./cap_touch/B_piano.mp3",
-};
-
-const UNLOCK_SEQUENCE = ["2", "7", "6", "1", "6", "6", "1", "2", "3", "2"];
-const HOLD_DURATION_MS = 30000; // auto-reset after 30s of hold music
-const PRE_RING_PAUSE_MS = 1200; // pause after sequence before ringing starts
-const RING_DURATION_MS = 7000; // total ringing duration (longer)
-const RING_BURST_MS = 0.9; // each burst length in seconds (longer)
-const RING_GAP_MS = 0.3; // gap between the two bursts in a pair
-const RING_SILENCE_MS = 2.0; // silence between ring pairs
-// ─────────────────────────────────────────────────────────────────────────────
-
-const PIANO_NOTE_NAMES = {
-  1: "C4",
-  2: "D4",
-  3: "E4",
-  4: "F4",
-  5: "G4",
-  6: "A4",
-  7: "B4",
-};
-const DTMF = {
-  1: { row: 697, col: 1209 },
-  2: { row: 697, col: 1336 },
-  3: { row: 697, col: 1477 },
-  4: { row: 770, col: 1209 },
-  5: { row: 770, col: 1336 },
-  6: { row: 770, col: 1477 },
-  7: { row: 852, col: 1209 },
-};
-
-const DEBOUNCE_MS = 150;
-const TONE_DURATION = 0.5;
-
-const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
-const CHAR_UUID = "19b10001-e8f2-537e-4f6c-d104768a1214";
-
-const ROWS = [
-  ["1", "2", "3"],
-  ["4", "5", "6"],
-  [null, "7", null],
-];
-const PINS = { 1: "T2", 2: "T3", 3: "T4", 4: "T5", 5: "T9", 6: "T8", 7: "T7" };
-
-export default function TouchSynth() {
-  const [connected, setConnected] = useState(false);
-  const [lastTrigger, setLastTrigger] = useState(null);
-  const [displayDigits, setDisplayDigits] = useState([]);
-  const [mode, setMode] = useState("dial");
-
-  const audioCtxRef = useRef(null);
-  const lastFiredRef = useRef({});
-  const characteristicRef = useRef(null);
-  const deviceRef = useRef(null);
-  const tapHistoryRef = useRef([]);
-  const ringTimerRef = useRef(null);
-  const holdTimerRef = useRef(null);
-  const preRingTimerRef = useRef(null);
-  const ringNodesRef = useRef([]);
-  const holdSourceRef = useRef(null);
-  const holdBufferRef = useRef(null);
-  const pleaseWaitSrcRef = useRef(null);
-  const pleaseWaitBufRef = useRef(null);
-  const hangUpSrcRef = useRef(null);
-  const hangUpBufRef = useRef(null);
-  const dialToneBufRef = useRef(null);
-  const dialToneSrcRef = useRef(null);
-  const pianoBuffersRef = useRef({}); // label → AudioBuffer
-  const modeRef = useRef("dial");
-
-  useEffect(
-    () => () => {
-      audioCtxRef.current?.close();
-      clearTimeout(ringTimerRef.current);
-      clearTimeout(holdTimerRef.current);
-      clearTimeout(preRingTimerRef.current);
-    },
-    [],
-  );
-
-  function setModeBoth(m) {
-    modeRef.current = m;
-    setMode(m);
-  }
-
-  function getCtx() {
-    if (!audioCtxRef.current || audioCtxRef.current.state === "closed")
-      audioCtxRef.current = new AudioContext();
-    if (audioCtxRef.current.state === "suspended") audioCtxRef.current.resume();
-    return audioCtxRef.current;
-  }
-
-  // ── Preload all samples in the background once ctx exists ─────────────────
-  // Called once on first connect so samples are ready when needed.
-  async function preloadSamples(ctx) {
-    const load = async (url, cacheRef, key) => {
-      try {
-        const resp = await fetch(url);
-        const arr = await resp.arrayBuffer();
-        const buf = await ctx.decodeAudioData(arr);
-        if (key !== undefined) cacheRef.current[key] = buf;
-        else cacheRef.current = buf;
-      } catch (e) {
-        console.warn("Could not preload:", url, e);
-      }
-    };
-
-    await Promise.all([
-      load(PLEASE_WAIT_SRC, pleaseWaitBufRef, undefined),
-      load(HOLD_MUSIC_SRC, holdBufferRef, undefined),
-      load(DIAL_TONE_SRC, dialToneBufRef, undefined),
-      load(HANG_UP_SRC, hangUpBufRef, undefined),
-      ...Object.entries(PIANO_SAMPLES).map(([key, url]) =>
-        load(url, pianoBuffersRef, key),
-      ),
-    ]);
-  }
-
-  // ── DTMF ──────────────────────────────────────────────────────────────────
-  function playDTMF(label) {
-    const dtmf = DTMF[label];
-    if (!dtmf) return;
-    const ctx = getCtx();
-    const now = ctx.currentTime;
-    const end = now + TONE_DURATION;
-
-    const oscRow = ctx.createOscillator();
-    const oscCol = ctx.createOscillator();
-    oscRow.type = oscCol.type = "sine";
-    oscRow.frequency.value = dtmf.row;
-    oscCol.frequency.value = dtmf.col;
-
-    const merge = ctx.createGain();
-    merge.gain.value = 0.25;
-    oscRow.connect(merge);
-    oscCol.connect(merge);
-
-    const lpf1 = ctx.createBiquadFilter();
-    lpf1.type = "lowpass";
-    lpf1.frequency.value = 1200;
-    lpf1.Q.value = 1.8;
-    merge.connect(lpf1);
-    const lpf2 = ctx.createBiquadFilter();
-    lpf2.type = "lowpass";
-    lpf2.frequency.value = 1000;
-    lpf2.Q.value = 0.7;
-    lpf1.connect(lpf2);
-    const hpf = ctx.createBiquadFilter();
-    hpf.type = "highpass";
-    hpf.frequency.value = 300;
-    hpf.Q.value = 0.5;
-    lpf2.connect(hpf);
-
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -18;
-    comp.knee.value = 12;
-    comp.ratio.value = 6;
-    comp.attack.value = 0.008;
-    comp.release.value = 0.1;
-    hpf.connect(comp);
-
-    const gate = ctx.createGain();
-    gate.gain.setValueAtTime(0, now);
-    gate.gain.linearRampToValueAtTime(0.9, now + 0.01);
-    gate.gain.setValueAtTime(0.9, end - 0.02);
-    gate.gain.linearRampToValueAtTime(0, end);
-    comp.connect(gate);
-    gate.connect(ctx.destination);
-
-    oscRow.start(now);
-    oscCol.start(now);
-    oscRow.stop(end + 0.05);
-    oscCol.stop(end + 0.05);
-  }
-
-  // ── Piano sample playback ─────────────────────────────────────────────────
-  // Plays the decoded AudioBuffer for the key, with a short fade-out envelope
-  // so repeated taps don't click. Falls back to synth if sample not loaded.
-  function playPiano(label) {
-    const ctx = getCtx();
-    const buf = pianoBuffersRef.current[label];
-
-    if (!buf) {
-      // Graceful fallback: soft synth tone if sample missing
-      playSynthFallback(label, ctx);
-      return;
-    }
-
-    const source = ctx.createBufferSource();
-    source.buffer = buf;
-
-    // Short fade-out so the sample ends cleanly even if it's longer than needed
-    const env = ctx.createGain();
-    const now = ctx.currentTime;
-    const dur = buf.duration;
-    env.gain.setValueAtTime(0.9, now);
-    env.gain.setValueAtTime(0.9, now + Math.max(0, dur - 0.06));
-    env.gain.linearRampToValueAtTime(0, now + dur);
-
-    source.connect(env);
-    env.connect(ctx.destination);
-    source.start(now);
-  }
-
-  function playSynthFallback(label, ctx) {
-    const freq = {
-      1: 261.63,
-      2: 293.66,
-      3: 329.63,
-      4: 349.23,
-      5: 392,
-      6: 440,
-      7: 493.88,
-    }[label];
-    if (!freq) return;
-    const now = ctx.currentTime;
-    const decay = 1.8;
-    const osc = ctx.createOscillator();
-    osc.type = "triangle";
-    osc.frequency.value = freq;
-    const env = ctx.createGain();
-    env.gain.setValueAtTime(0.001, now);
-    env.gain.linearRampToValueAtTime(0.35, now + 0.006);
-    env.gain.exponentialRampToValueAtTime(0.001, now + decay);
-    const lp = ctx.createBiquadFilter();
-    lp.type = "lowpass";
-    lp.frequency.value = 3000;
-    lp.Q.value = 0.5;
-    osc.connect(env);
-    env.connect(lp);
-    lp.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + decay + 0.05);
-  }
-
-  // ── Ring ──────────────────────────────────────────────────────────────────
-  function startRinging() {
-    const ctx = getCtx();
-    ringNodesRef.current = [];
-    let t = ctx.currentTime;
-    const ringEnd = t + RING_DURATION_MS / 1000;
-    const cycleLen = RING_BURST_MS * 2 + RING_GAP_MS + RING_SILENCE_MS;
-
-    while (t < ringEnd) {
-      for (let burst = 0; burst < 2; burst++) {
-        const start = t + burst * (RING_BURST_MS + RING_GAP_MS);
-        const end = start + RING_BURST_MS;
-        if (start >= ringEnd) break;
-
-        [400, 450].forEach((freq) => {
-          const osc = ctx.createOscillator();
-          osc.type = "sine";
-          osc.frequency.value = freq;
-          const gain = ctx.createGain();
-          const clampedEnd = Math.min(end, ringEnd);
-          gain.gain.setValueAtTime(0, start);
-          gain.gain.linearRampToValueAtTime(0.28, start + 0.02);
-          gain.gain.setValueAtTime(0.28, clampedEnd - 0.03);
-          gain.gain.linearRampToValueAtTime(0, clampedEnd);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(start);
-          osc.stop(clampedEnd + 0.05);
-          ringNodesRef.current.push(osc);
-        });
-      }
-      t += cycleLen;
-    }
-  }
-
-  function stopRinging() {
-    ringNodesRef.current.forEach((n) => {
-      try {
-        n.stop();
-      } catch (_) {}
-    });
-    ringNodesRef.current = [];
-  }
-
-  // ── Please-wait announcement ──────────────────────────────────────────────
-  // Returns a Promise that resolves when the clip finishes (or immediately on error).
-  function playPleaseWait(ctx) {
-    return new Promise((resolve) => {
-      const buf = pleaseWaitBufRef.current;
-      if (!buf) {
-        resolve();
-        return;
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buf;
-
-      const gain = ctx.createGain();
-      gain.gain.value = 0.85;
-      source.connect(gain);
-      gain.connect(ctx.destination);
-
-      source.onended = resolve;
-      pleaseWaitSrcRef.current = source;
-      source.start(0);
-    });
-  }
-
-  // ── phone dial tone olayed after hang-up ──────────────────────────────────────────────
-  // Returns a Promise that resolves when the clip finishes (or immediately on error).
-  function playDialTone(ctx) {
-    return new Promise((resolve) => {
-      const buf = dialToneBufRef.current;
-      if (!buf) {
-        resolve();
-        return;
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buf;
-
-      const gain = ctx.createGain();
-      gain.gain.value = 0.85;
-      source.connect(gain);
-      gain.connect(ctx.destination);
-
-      source.onended = resolve;
-      dialToneSrcRef.current = source;
-      source.start(0);
-    });
-  }
-
-  // ── phone hang-up sound ──────────────────────────────────────────────
-  // Returns a Promise that resolves when the clip finishes (or immediately on error).
-  function playHangUp(ctx) {
-    return new Promise((resolve) => {
-      const buf = hangUpBufRef.current;
-      if (!buf) {
-        resolve();
-        return;
-      }
-
-      const source = ctx.createBufferSource();
-      source.buffer = buf;
-
-      const gain = ctx.createGain();
-      gain.gain.value = 0.85;
-      source.connect(gain);
-      gain.connect(ctx.destination);
-
-      source.onended = resolve;
-      hangUpSrcRef.current = source;
-      source.start(0);
-    });
-  }
-
-  // ── Hold music ────────────────────────────────────────────────────────────
-  function startHoldMusic(ctx) {
-    const buf = holdBufferRef.current;
-    if (!buf) return;
-
-    const source = ctx.createBufferSource();
-    source.buffer = buf;
-    source.loop = true;
-
-    const muffle1 = ctx.createBiquadFilter();
-    muffle1.type = "lowpass";
-    muffle1.frequency.value = 1800;
-    muffle1.Q.value = 0.6;
-    const muffle2 = ctx.createBiquadFilter();
-    muffle2.type = "lowpass";
-    muffle2.frequency.value = 2400;
-    muffle2.Q.value = 0.4;
-    const gainNode = ctx.createGain();
-    gainNode.gain.value = 0.1;
-
-    source.connect(muffle2);
-    muffle2.connect(muffle1);
-    muffle1.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    source.start(0);
-    holdSourceRef.current = source;
-  }
-
-  function stopHoldMusic() {
-    try {
-      holdSourceRef.current?.stop();
-    } catch (_) {}
-    holdSourceRef.current = null;
-  }
-
-  function stopPleaseWait() {
-    try {
-      pleaseWaitSrcRef.current?.stop();
-    } catch (_) {}
-    pleaseWaitSrcRef.current = null;
-  }
-
-  function stopHangUp() {
-    try {
-      hangUpSrcRef.current?.stop();
-    } catch (_) {}
-    hangUpSrcRef.current = null;
-  }
-
-  function stopDialTone() {
-    try {
-      dialToneSrcRef.current?.stop();
-    } catch (_) {}
-    dialToneSrcRef.current = null;
-  }
-
-  // ── Reset ─────────────────────────────────────────────────────────────────
-  async function resetToDial(hang_up = true) {
-    clearTimeout(preRingTimerRef.current);
-    clearTimeout(ringTimerRef.current);
-    clearTimeout(holdTimerRef.current);
-    stopRinging();
-    stopHoldMusic();
-    stopPleaseWait();
-    // play hangup sound
-    if (hang_up) {
-      setModeBoth("paused");
-      await playHangUp(getCtx());
-      await playDialTone(getCtx());
-    }
-    stopHangUp();
-    stopDialTone();
-    tapHistoryRef.current = [];
-    setDisplayDigits([]);
-    setLastTrigger(null);
-    setModeBoth("dial");
-  }
-
-  // ── Sequence → ring → please wait → hold music ───────────────────────────
-  function checkSequence(history) {
-    if (history.length < UNLOCK_SEQUENCE.length) return false;
-    return history
-      .slice(-UNLOCK_SEQUENCE.length)
-      .every((v, i) => v === UNLOCK_SEQUENCE[i]);
-  }
-
-  async function triggerUnlock() {
-    // 1. Brief pause before anything happens
-    setModeBoth("paused");
-    await new Promise((r) => {
-      preRingTimerRef.current = setTimeout(r, PRE_RING_PAUSE_MS);
-    });
-
-    // 2. Ring
-    setModeBoth("ringing");
-    setDisplayDigits([]);
-    startRinging();
-    await new Promise((r) => {
-      ringTimerRef.current = setTimeout(r, RING_DURATION_MS);
-    });
-
-    // 3. Stop ringing, play "please wait" announcement
-    stopRinging();
-    setModeBoth("waiting");
-    const ctx = getCtx();
-    await playPleaseWait(ctx);
-
-    // 4. Start hold music, switch to hold/piano mode
-    startHoldMusic(ctx);
-    setModeBoth("hold");
-
-    // 5. Auto-reset after 30s
-    // holdTimerRef.current = setTimeout(resetToDial, HOLD_DURATION_MS);
-    holdTimerRef.current = setTimeout(resetToDial, HOLD_DURATION_MS);
-    // const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    holdTimerRef.current = new Promise((resetToDial) =>
-      setTimeout(resetToDial, HOLD_DURATION_MS),
-    );
-  }
-
-  // ── Main trigger ──────────────────────────────────────────────────────────
-  function handleTrigger(label) {
-    const now = Date.now();
-    if (now - (lastFiredRef.current[label] ?? 0) < DEBOUNCE_MS) return;
-    lastFiredRef.current[label] = now;
-    setLastTrigger(label);
-
-    const currentMode = modeRef.current;
-    if (
-      currentMode === "ringing" ||
-      currentMode === "paused" ||
-      currentMode === "waiting"
-    )
-      return;
-
-    if (currentMode === "hold") {
-      playPiano(label);
-      setDisplayDigits((prev) => [...prev.slice(-7), label]);
-      return;
-    }
-
-    // Dial mode
-    playDTMF(label);
-    setDisplayDigits((prev) => [...prev.slice(-7), label]);
-
-    const next = [...tapHistoryRef.current, label].slice(
-      -UNLOCK_SEQUENCE.length,
-    );
-    tapHistoryRef.current = next;
-    if (checkSequence(next)) {
-      tapHistoryRef.current = [];
-      triggerUnlock();
-    }
-  }
-
-  // ── BLE ───────────────────────────────────────────────────────────────────
-  function onNotification(event) {
-    const label = new TextDecoder().decode(event.target.value).trim();
-    handleTrigger(label);
-  }
-
-  async function connect() {
-    const ctx = getCtx();
-    const device = await navigator.bluetooth.requestDevice({
-      filters: [{ name: "ESP32-TouchSynth" }],
-      optionalServices: [SERVICE_UUID],
-    });
-    deviceRef.current = device;
-    device.addEventListener("gattserverdisconnected", () => {
-      setConnected(false);
-      characteristicRef.current = null;
-      resetToDial(false);
-    });
-    const server = await device.gatt.connect();
-    const service = await server.getPrimaryService(SERVICE_UUID);
-    const char = await service.getCharacteristic(CHAR_UUID);
-    char.addEventListener("characteristicvaluechanged", onNotification);
-    await char.startNotifications();
-    characteristicRef.current = char;
-    setConnected(true);
-
-    // Kick off sample preloading in the background after connecting
-    preloadSamples(ctx);
-  }
-
-  async function disconnect() {
-    await resetToDial(false);
-    if (characteristicRef.current)
-      await characteristicRef.current.stopNotifications().catch(() => {});
-    deviceRef.current?.gatt?.disconnect();
-    setConnected(false);
-    characteristicRef.current = null;
-  }
-
-  // ── UI ────────────────────────────────────────────────────────────────────
-  const modeColors = {
-    dial: {
-      bg: "#1a1a2e",
-      display: "#c8d6a0",
-      text: "#2a3a10",
-      accent: "#a0b070",
-    },
-    paused: {
-      bg: "#1a1a2e",
-      display: "#c8d6a0",
-      text: "#2a3a10",
-      accent: "#a0b070",
-    },
-    ringing: {
-      bg: "#2e1a1a",
-      display: "#f5c0c0",
-      text: "#3a1010",
-      accent: "#c07070",
-    },
-    waiting: {
-      bg: "#2e241a",
-      display: "#f5e0c0",
-      text: "#3a2a10",
-      accent: "#c09060",
-    },
-    hold: {
-      bg: "#1a2e1a",
-      display: "#c0d4f5",
-      text: "#101a3a",
-      accent: "#7090c0",
-    },
-  };
-  const colors = modeColors[mode] ?? modeColors.dial;
-
-  const modeLabel =
-    {
-      dial: "dial mode",
-      paused: "\u00a0",
-      ringing: "ringing\u2026",
-      waiting: "please wait\u2026",
-      hold: "hold music \u2014 piano mode",
-    }[mode] ?? "";
-
+import * as React from "react";
+import { Link } from "wouter";
+
+export default function CapacitiveTouch() {
+  // Intro Soldering project with pictures
   return (
-    <div
-      style={{
-        fontFamily: "var(--font-mono, monospace)",
-        maxWidth: 300,
-        margin: "0 auto",
-        padding: "1rem",
-        background: colors.bg,
-        minHeight: "100vh",
-        transition: "background 0.6s",
-      }}
-    >
-      <div
-        style={{
-          background: colors.display,
-          borderRadius: 4,
-          padding: "10px 14px",
-          marginBottom: 8,
-          minHeight: 44,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          fontSize: 26,
-          fontWeight: 500,
-          letterSpacing: 4,
-          color: colors.text,
-          border: `2px inset ${colors.accent}`,
-          userSelect: "none",
-          transition: "background 0.6s, color 0.6s",
-        }}
-      >
-        {displayDigits.length ? displayDigits.join("") : "\u00a0"}
-      </div>
-
-      <p
-        style={{
-          fontSize: 10,
-          color: colors.display,
-          textAlign: "center",
-          marginBottom: 12,
-          letterSpacing: 1,
-          opacity: 0.75,
-          transition: "color 0.6s",
-        }}
-      >
-        {modeLabel}
-      </p>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 6,
-        }}
-      >
-        {ROWS.flat().map((label, i) => {
-          if (!label) return <div key={i} />;
-          const isActive = lastTrigger === label;
-          return (
-            <div
-              key={label}
-              style={{
-                background: isActive ? "#b0b0b0" : "#d8d8d8",
-                border: isActive ? "2px inset #888" : "2px outset #f0f0f0",
-                borderRadius: 4,
-                padding: "10px 0 8px",
-                textAlign: "center",
-                userSelect: "none",
-                transition: "background 0.05s, border 0.05s",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 20,
-                  fontWeight: 500,
-                  color: "#111",
-                  lineHeight: 1,
-                }}
+    <div className="rp">
+      <div className="rp container">
+        <div className="rp title-heading">
+          <div className="header-row">
+            <div className="rp header-buttons">
+              <Link to="/ces-portfolio/">
+                <img src="./icons/left-up.svg" alt="Back" className="icon" />
+              </Link>
+              {/* TODO: change */}
+              <a
+                href="https://github.com/lucyking140/ces-generative-art/"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {label}
-              </div>
-              <div
-                style={{
-                  fontSize: 9,
-                  color: "#555",
-                  marginTop: 3,
-                  letterSpacing: 1,
-                }}
-              >
-                {mode === "hold" ? PIANO_NOTE_NAMES[label] : PINS[label]}
-              </div>
+                <img
+                  src="./icons/github-icon.svg"
+                  alt="GitHub"
+                  className="icon"
+                />
+              </a>
             </div>
-          );
-        })}
+            <div className="rp title">
+              &#183; capacitive touch phone bag &#183; 4.5.2026 &#183;
+            </div>
+          </div>
+        </div>
+
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="./cap_touch/hero_shot.jpg" />
+        </div>
+
+        {/* Description */}
+        <div className="rp para">
+          Inspired by the playful cell phones of the early 2000s and ideas of
+          wearable technology, this bag is a mock phone operated by a series of
+          7 capacitive chainmail patches. At first, the patches serve as a
+          keypad to “dial” a phone number. When a specific phone number is
+          entered (276-166-1232, my phone number mod 7), the bag “rings” and
+          gets picked up by an answering machine playing hold music. In this
+          mode, the chainmail patches act as piano keys, allowing the user to
+          play along with the music. The user can then “hang up” by pressing the
+          first and second patches simultaneously, after which the bag returns
+          to dial mode.
+        </div>
+
+        {/* Video demo */}
+        <div className="rp imgbox">
+          <video autoPlay loop controls className="rp center-fit">
+            <source src="./cap_touch/ces_demo.mp4" type="video/mp4" />
+            Your browser does not support the video.
+          </video>
+          <div className="rp imgcap"> Demo showing both modes. </div>
+        </div>
+
+        <div className="rp para">
+          The idea of a touch interface bag was inspired by the Honey Lemon
+          character in Big Hero Six, who uses a purse with a periodic table
+          keypad to create chemical reactions on the fly. Going against
+          expectations of science as a man’s field, her character’s pink,
+          feminine persona only amplifies her chemistry skills, with the
+          stereotypically female accessory of the purse serving as the vehicle
+          for her scientific genius. Today, wearable technology is often instead
+          designed to be sterile, silver, and functional, lacking a playfulness
+          embodied both by Honey Lemon’s bag and earlier generations of personal
+          technology.
+        </div>
+
+        {/* Honey lemon image */}
+        <div className="rp imgbox">
+          <img
+            src="./cap_touch/honey_lemon.gif"
+            alt="Honey Lemon Bag"
+            style={{ width: "100%" }}
+          />
+          <div className="rp imgcap">
+            Honey Lemon's touch interface bag in action.
+          </div>
+        </div>
+
+        <div className="rp para">
+          I wanted to bridge today’s emphasis on metallic, sterile design with
+          the experimentation of previous eras, built from Honey Lemon’s
+          representation of wearable technology that serves aesthetic as well as
+          functional purposes. The geometric shapes of the metallic chainmail
+          used for the capacitive touch buttons are industrial and sharp, but
+          their messy texture and irrational layout departs from the sleek steel
+          of modern design. The bag itself is also a byproduct of industrial
+          materials and is made from webbing, recycled billboard tarp, and bike
+          inner tubes, all of which are used outside of their original
+          functional purpose and are transformed into an accessory worn for
+          style. The style and shape of the bag is based on{" "}
+          <a
+            href="https://freitag.ch/en_US/products/f41-hawaii-five-0?v=000004246722"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {" "}
+            this bag{" "}
+          </a>{" "}
+          from Freitag, which also uses similar materials.
+        </div>
+
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="cap_touch/freitag_ex.jpeg" />
+          <div className="rp imgcap">Bag used for inspiration</div>
+        </div>
+
+        <div className="rp para">
+          Cell phones in particular have lost their whimsy – after years of
+          creative shapes, colors, and designs in the early 2000s, the rise of
+          the iPhone and devices like it have normalized a strict vision of
+          steel and glass that doesn’t allow for creative exploration. Creating
+          a wearable mock phone returns to this era of creativity and amplifies
+          the role of aesthetics in technology by translating the phone from a
+          handheld device to an accessory that’s always visible to those around
+          the wearer. Allowing the wearer to engage in the playfulness of
+          music-making in the hold music mode also adds a layer of fun in a
+          traditionally dull moment of waiting on hold.
+        </div>
+
+        <div className="rp para">
+          <strong> Process </strong>
+        </div>
+
+        {/* Process timelapse */}
+        <div className="rp imgbox">
+          <video autoPlay loop controls className="rp center-fit">
+            <source src="./cap_touch/cap_touch_bag.mp4" type="video/mp4" />
+            Your browser does not support the video.
+          </video>
+          <div className="rp imgcap">
+            {" "}
+            Timelapse and explanation of the process of constructing the bag,
+            chainmail, and wiring.{" "}
+          </div>
+        </div>
+
+        <div className="rp para">
+          I’ve made bags in the style of the Freitag brand previously, so I had
+          the materials and was familiar with the general design of the bag. The
+          electronic components of the bag are isolated to the lid, which makes
+          it easier to construct the bag without disturbing the wiring and also
+          easier to separate the ESP-32 and wiring from the bag in the future
+          (the goal is to be able to easily return the ESP-32 and also reuse the
+          bag for personal wear).
+        </div>
+
+        <div className="rp para">
+          After constructing the bottom of the bag, I wove the chainmail buttons
+          from another aluminum chainmail panel I had made from a previous
+          project. Each button is connected to two copper wires, which are then
+          soldered together to create one connection to the ESP-32. The wires
+          are simply wrapped around one of the chainmail rings in the button,
+          which keeps them relatively hidden from the front, and avoids the
+          challenges I ran into when trying to solder onto the aluminum rings.
+          While the rings in the buttons are conductive and mostly connect due
+          to the tight weave pattern, linking the electrical connection across
+          the entire button, the signal is sometimes lost if the rings aren’t
+          directly connected. Having two direct points of contact to the copper
+          wire in each button makes it almost guaranteed that a touch anywhere
+          on the button will reach at least one wire.
+        </div>
+
+        {/* Wiring */}
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="cap_touch/bag_wiring.jpeg" />
+          <div className="rp imgcap">
+            The inside of the lid, with the chainmail buttons on the flip side.
+            Each wire is soldered to another piece to increase the conductive
+            surface area. This layer is hidden in the final product.
+          </div>
+        </div>
+
+        <div className="rp para">
+          The wires are placed between layers of tarp in the lid, so they’re not
+          visible from the outside. They come together at one small point at the
+          base of the lid, where they are plugged into the ESP-32 breadboard.
+          The device and breadboard themselves are inside a small 3D-printed
+          enclosure. Keeping this enclosure outside of the fabric bag ensures
+          easy access, removal, and sufficient airflow for heat management.
+        </div>
+
+        {/* Enclosure */}
+        <div className="rp imgbox">
+          <img className="rp center-fit" src="cap_touch/inside_bag.jpeg" />
+          <div className="rp imgcap">
+            Inside the bag, showing the white 3D-printed enclosure for the
+            ESP-32. The wires go from the lid into the breadboard inside the
+            enclosure. The box itself is taped to the inside of the bag with a
+            command strip, which makes it sturdy but also easy to remove
+            later.{" "}
+          </div>
+        </div>
+
+        <div className="rp para">
+          To power the phone, I use web serial bluetooth to wirelessly connect
+          the bag to an audio interface on my laptop. It is powered by a
+          portable charger and a bluetooth speaker that sits inside the bag,
+          which hides any wiring from sight when wearing it. The bluetooth
+          speaker is connected via standard bluetooth to my laptop, which makes
+          the audio from the laptop sound like it’s coming from within the bag.
+        </div>
+
+        <div className="rp para">
+          <strong> Technical Challenges </strong>
+        </div>
+
+        <div className="rp para">
+          The bag only has 7 buttons, but I originally planned for 10 based on
+          an actual number keypad. I experimented with using combinations of
+          touch pins on the ESP-32 to produce the additional 3 buttons beyond
+          the 7 touch pins available on the device (for example, touching pins
+          T2 and T3 would be a third button on top of T2 and T3 individually).
+          When I created a wire that permanently connected two pins in addition
+          to the two separate wires that individually connected to each pin, I
+          realized that this created a permanent circuit between the two that
+          would be triggered even if only touching one of the two buttons
+          because it was electrically connected to the second button via the
+          combination wire.
+        </div>
+
+        <div className="rp para">
+          One way to do this correctly would have been to use the human touch to
+          complete the two-pin circuit, so that the individual pins would only
+          be overwritten by this connection if they were touched simultaneously,
+          which isn’t a problem for my design. However, this wasn’t compatible
+          with my design for the chainmail buttons where the entire button is
+          connected, so I reduced the number of buttons and only used the middle
+          7 buttons on the chainmail keypad, leaving the remaining 3 for
+          decoration.
+        </div>
+
+        <div className="rp para">
+          I also used single copper wires for the first few buttons, which I
+          quickly realized were too fragile for the movement I needed in the
+          lid. My original design placed the ESP-32 on the lid itself, which
+          avoided the problem of the movement of opening and closing the lid,
+          and I pivoted after already completing the wiring in the lid. Because
+          the wires are hidden between fabric layers, they aren’t easily fixable
+          and thus are somewhat fragile. Luckily, only one broke and it was
+          right at the point that it exited the lid, so I was able to fix it.
+          Otherwise, gently opening and closing the bag hasn’t caused any other
+          damage, and the bag is primarily intended to be worn and used while
+          closed, where movement isn’t a problem. The idea of the bag is to be
+          interacted with while worn, and aside from the thin wires, the
+          chainmail and tarp interface is waterproof and damageproof.
+        </div>
       </div>
-
-      <button
-        onClick={connected ? disconnect : connect}
-        style={{
-          width: "100%",
-          marginTop: 14,
-          padding: "8px 0",
-          borderRadius: 4,
-          border: "2px outset #d0d0d0",
-          background: "#d0d0d0",
-          color: "#111",
-          fontSize: 13,
-          fontFamily: "var(--font-mono, monospace)",
-          cursor: "pointer",
-        }}
-      >
-        {connected ? "[ disconnect ]" : "[ connect ]"}
-      </button>
-
-      <p
-        style={{
-          marginTop: 10,
-          fontSize: 11,
-          color: colors.display,
-          fontFamily: "var(--font-mono, monospace)",
-          textAlign: "center",
-          opacity: 0.65,
-        }}
-      >
-        {connected ? "BLE OK" : "NO SIG"}
-      </p>
     </div>
   );
 }

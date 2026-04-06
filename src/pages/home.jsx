@@ -64,20 +64,27 @@ function Home() {
   const projects = [
     {
       id: 1,
+      title: "• capacitive touch phone bag •",
+      date: "4.5.2026",
+      link: "capacitive-touch",
+      heroImage: "cap_touch/hero_shot_alt.jpeg",
+    },
+    {
+      id: 2,
       title: "• generative art •",
       date: "1.26.2026",
       link: "gen-art",
       heroImage: "gen_art/hero.jpeg",
     },
     {
-      id: 2,
+      id: 3,
       title: "• pcb pendant •",
       date: "2.10.2026",
       link: "pcb",
       heroImage: "pcb/hero_2.jpeg",
     },
     {
-      id: 3,
+      id: 4,
       title: "• soldering introduction •",
       date: "1.26.2026",
       link: "soldering-intro",
