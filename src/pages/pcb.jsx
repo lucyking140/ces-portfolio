@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+const base = import.meta.env.BASE_URL; // resolves to "/ces-portfolio/"
+
 export default function Pcb() {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
@@ -58,7 +60,7 @@ export default function Pcb() {
     // Load GLB model
     const loader = new GLTFLoader();
     loader.load(
-      "./pcb/testing_no_background4.glb",
+      `${base}/pcb/testing_no_background4.glb`,
       (gltf) => {
         const model = gltf.scene;
         scene.add(model);
@@ -196,7 +198,7 @@ export default function Pcb() {
 
         {/* Hero image with caption */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/hero_2.jpeg" />
+          <img className="rp center-fit" src={`${base}/pcb/hero_2.jpeg`} />
         </div>
 
         {/* 3D Model viewer */}
@@ -269,7 +271,7 @@ export default function Pcb() {
         </div>
 
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/homage.jpg" />
+          <img className="rp center-fit" src={`${base}/pcb/homage.jpg`} />
           <div className="rp imgcap">
             Examples from Josef Albers' 'Homage to the Square' series{" "}
             <a
@@ -292,7 +294,10 @@ export default function Pcb() {
         </div>
 
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/traces_guides.png" />
+          <img
+            className="rp center-fit"
+            src={`${base}/pcb/traces_guides.png`}
+          />
           <div className="rp imgcap">
             The concentric circles that I used as guides when designing the PCB
             traces.
@@ -326,7 +331,7 @@ export default function Pcb() {
         {/* Video of the PCB */}
         <div className="rp imgbox">
           <video autoPlay muted loop controls className="rp center-fit">
-            <source src="./pcb/demo.mp4" type="video/mp4" />
+            <source src={`${base}/pcb/demo.mp4`} type="video/mp4" />
             Your browser does not support the video.
           </video>
           <div className="rp imgcap">The PCB while flashing.</div>
@@ -335,7 +340,7 @@ export default function Pcb() {
         {/* detail images */}
         {/* side view showing heights */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/side.jpeg" />
+          <img className="rp center-fit" src={`${base}/pcb/side.jpeg`} />
           <div className="rp imgcap">
             PCB from the side, showing how the LED is elevated to fit between
             the chip and the battery holder.
@@ -344,7 +349,7 @@ export default function Pcb() {
 
         {/* details of hardware */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/details.jpeg" />
+          <img className="rp center-fit" src={`${base}/pcb/details.jpeg`} />
           <div className="rp imgcap">
             Close-up of the PCB LED on, emphasizing the circular shape of the
             traces.
@@ -353,7 +358,7 @@ export default function Pcb() {
 
         {/* back of the pcb */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="pcb/back.jpeg" />
+          <img className="rp center-fit" src={`${base}/pcb/back.jpeg`} />
           <div className="rp imgcap">The back of the PCB.</div>
         </div>
       </div>
