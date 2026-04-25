@@ -167,7 +167,11 @@ export default function Pcb() {
             <div className="rp header-buttons">
               <Link to="/ces-portfolio/">
                 {/* <button>Back</button> */}
-                <img src="./icons/left-up.svg" alt="Back" className="icon" />
+                <img
+                  src={`${base}/icons/left-up.svg`}
+                  alt="Back"
+                  className="icon"
+                />
               </Link>
               <a
                 href="https://github.com/lucyking140/ces-pcb/"
@@ -176,7 +180,7 @@ export default function Pcb() {
               >
                 {/* <button>Back</button> */}
                 <img
-                  src="./icons/github-icon.svg"
+                  src={`${base}/icons/github-icon.svg`}
                   alt="GitHub"
                   className="icon"
                 />

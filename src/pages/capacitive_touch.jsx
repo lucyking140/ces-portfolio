@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link } from "wouter";
 
+const base = import.meta.env.BASE_URL; // resolves to "/ces-portfolio/"
+
 export default function CapacitiveTouch() {
   // Intro Soldering project with pictures
   return (
@@ -10,7 +12,11 @@ export default function CapacitiveTouch() {
           <div className="header-row">
             <div className="rp header-buttons">
               <Link to="/ces-portfolio/">
-                <img src="./icons/left-up.svg" alt="Back" className="icon" />
+                <img
+                  src={`${base}/icons/left-up.svg`}
+                  alt="Back"
+                  className="icon"
+                />
               </Link>
               <a
                 href="https://github.com/lucyking140/ces-capacitive-touch"
@@ -18,7 +24,7 @@ export default function CapacitiveTouch() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="./icons/github-icon.svg"
+                  src={`${base}/icons/github-icon.svg`}
                   alt="GitHub"
                   className="icon"
                 />
@@ -30,7 +36,10 @@ export default function CapacitiveTouch() {
           </div>
         </div>
         <div className="rp imgbox">
-          <img className="rp center-fit" src="./cap_touch/hero_shot.jpg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/cap_touch/hero_shot.jpg`}
+          />
         </div>
         {/* Description */}
         <div className="rp para">
@@ -48,7 +57,7 @@ export default function CapacitiveTouch() {
         {/* Video demo */}
         <div className="rp imgbox">
           <video autoPlay muted loop controls className="rp center-fit">
-            <source src="./cap_touch/ces_demo.mp4" type="video/mp4" />
+            <source src={`${base}/cap_touch/ces_demo.mp4`} type="video/mp4" />
             Your browser does not support the video.
           </video>
           <div className="rp imgcap"> Demo showing both modes. </div>
@@ -68,7 +77,7 @@ export default function CapacitiveTouch() {
         {/* Honey lemon image */}
         <div className="rp imgbox">
           <img
-            src="./cap_touch/honey_lemon.gif"
+            src={`${base}/cap_touch/honey_lemon.gif`}
             alt="Honey Lemon Bag"
             style={{ width: "100%" }}
           />
@@ -99,7 +108,10 @@ export default function CapacitiveTouch() {
           from Freitag, which also uses similar materials.
         </div>
         <div className="rp imgbox">
-          <img className="rp center-fit" src="cap_touch/freitag_ex.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/cap_touch/freitag_ex.jpeg`}
+          />
           <div className="rp imgcap">Bag used for inspiration</div>
         </div>
         <div className="rp para">
@@ -120,7 +132,10 @@ export default function CapacitiveTouch() {
         {/* Process timelapse */}
         <div className="rp imgbox">
           <video autoPlay muted loop controls className="rp center-fit">
-            <source src="./cap_touch/cap_touch_bag.mp4" type="video/mp4" />
+            <source
+              src={`${base}/cap_touch/cap_touch_bag.mp4`}
+              type="video/mp4"
+            />
             Your browser does not support the video.
           </video>
           <div className="rp imgcap">
@@ -155,7 +170,10 @@ export default function CapacitiveTouch() {
         </div>
         {/* Wiring */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="cap_touch/bag_wiring.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/cap_touch/bag_wiring.jpeg`}
+          />
           <div className="rp imgcap">
             The inside of the lid, with the chainmail buttons on the flip side.
             Each wire is soldered to another piece to increase the conductive
@@ -172,7 +190,10 @@ export default function CapacitiveTouch() {
         </div>
         {/* Enclosure */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="cap_touch/inside_bag.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/cap_touch/inside_bag.jpeg`}
+          />
           <div className="rp imgcap">
             Inside the bag, showing the white 3D-printed enclosure for the
             ESP-32. The wires go from the lid into the breadboard inside the

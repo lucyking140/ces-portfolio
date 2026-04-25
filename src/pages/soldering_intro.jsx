@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link } from "wouter";
 
+const base = import.meta.env.BASE_URL; // resolves to "/ces-portfolio/"
+
 export default function SolderingIntro() {
   // Intro Soldering project with pictures
   return (
@@ -30,7 +32,10 @@ export default function SolderingIntro() {
 
         {/* Hero image with caption */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="soldering_intro/hero_shot.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/soldering_intro/hero_shot.jpeg`}
+          />
           {/* <div className="rp imgcap">
             Soldered protoboard with brass wire decoration
           </div> */}
@@ -66,7 +71,7 @@ export default function SolderingIntro() {
         <div className="rp imgbox">
           <img
             className="rp center-fit"
-            src="soldering_intro/horizontal.jpeg"
+            src={`${base}/soldering_intro/horizontal.jpeg`}
           />
           <div className="rp imgcap">
             Protoboard from the side, showing how the wire bends around to the
@@ -76,7 +81,10 @@ export default function SolderingIntro() {
 
         {/* pin header solders */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="soldering_intro/back_new.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/soldering_intro/back_new.jpeg`}
+          />
           <div className="rp imgcap">Soldering on the 12-pin header.</div>
         </div>
 
@@ -84,7 +92,7 @@ export default function SolderingIntro() {
         <div className="rp imgbox">
           <img
             className="rp center-fit"
-            src="soldering_intro/front_bottom_new.jpeg"
+            src={`${base}/soldering_intro/front_bottom_new.jpeg`}
           />
           <div className="rp imgcap">
             Examples where the wire is soldered both perpendicularly and at a
@@ -96,7 +104,7 @@ export default function SolderingIntro() {
         <div className="rp imgbox">
           <img
             className="rp center-fit"
-            src="soldering_intro/front_top_new.jpeg"
+            src={`${base}/soldering_intro/front_top_new.jpeg`}
           />
           <div className="rp imgcap">
             Soldered connections on the front side of the board.

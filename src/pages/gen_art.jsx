@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+const base = import.meta.env.BASE_URL; // resolves to "/ces-portfolio/"
+
 // Vertical offsets for each column (in %) to create a staggered grid
 const COL_OFFSETS = [0, -12, 8, -6, 14];
 
@@ -48,7 +50,7 @@ function ModelCell({ index }) {
     const direction = indexRef.current % 2 === 0 ? 1 : -1;
 
     const video = document.createElement("video");
-    video.src = "./gen_art.mp4";
+    video.src = `${base}/gen_art.mp4`;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
@@ -56,7 +58,7 @@ function ModelCell({ index }) {
 
     const loader = new GLTFLoader();
     loader.load(
-      "./esp32_welcome_center.glb",
+      `${base}/esp32_welcome_center.glb`,
       (gltf) => {
         if (cancelled) return;
         const model = gltf.scene;
@@ -180,13 +182,13 @@ export default function GenArt() {
 
     const loader = new GLTFLoader();
     loader.load(
-      "./esp32_welcome_center.glb",
+      `${base}/esp32_welcome_center.glb`,
       (gltf) => {
         const model = gltf.scene;
         scene.add(model);
         modelRef.current = model;
 
-        video.src = "./gen_art.mp4";
+        video.src = `${base}/gen_art.mp4`;
         video.loop = true;
         video.muted = true;
         video.playsInline = true;
@@ -477,7 +479,11 @@ export default function GenArt() {
           <div className="header-row">
             <div className="rp header-buttons">
               <Link to="/ces-portfolio/">
-                <img src="./icons/left-up.svg" alt="Back" className="icon" />
+                <img
+                  src={`${base}/icons/left-up.svg`}
+                  alt="Back"
+                  className="icon"
+                />
               </Link>
               <a
                 href="https://github.com/lucyking140/ces-generative-art/"
@@ -485,7 +491,7 @@ export default function GenArt() {
                 rel="noopener noreferrer"
               >
                 <img
-                  src="./icons/github-icon.svg"
+                  src={`${base}/icons/github-icon.svg`}
                   alt="GitHub"
                   className="icon"
                 />
@@ -499,7 +505,7 @@ export default function GenArt() {
 
         {/* Hero image */}
         <div className="rp imgbox">
-          <img className="rp center-fit" src="gen_art/hero.jpeg" />
+          <img className="rp center-fit" src={`${base}/gen_art/hero.jpeg`} />
         </div>
 
         <div className="rp para">
@@ -512,7 +518,10 @@ export default function GenArt() {
         </div>
 
         <div className="rp imgbox">
-          <img className="rp center-fit" src="gen_art/screensaver.gif" />
+          <img
+            className="rp center-fit"
+            src={`${base}/gen_art/screensaver.gif`}
+          />
           <div className="rp imgcap">
             Example of the "flying object" screen saver that inspired my icons.
             <a
@@ -564,7 +573,7 @@ export default function GenArt() {
         {/* Video of the display in class */}
         <div className="rp imgbox">
           <video autoPlay muted loop controls className="rp center-fit">
-            <source src="./gen_art/full_class.mp4" type="video/mp4" />
+            <source src={`${base}/gen_art/full_class.mp4`} type="video/mp4" />
             Your browser does not support the video.
           </video>
           <div className="rp imgcap">
@@ -583,7 +592,10 @@ export default function GenArt() {
         {/* Video of just mine swinging in the display */}
         <div className="rp imgbox">
           <video autoPlay muted loop controls className="rp center-fit">
-            <source src="./gen_art/mine_in_class.mp4" type="video/mp4" />
+            <source
+              src={`${base}/gen_art/mine_in_class.mp4`}
+              type="video/mp4"
+            />
             Your browser does not support the video.
           </video>
           <div className="rp imgcap">
@@ -663,7 +675,10 @@ export default function GenArt() {
             {/* Video of just mine swinging in the display */}
             <div className="rp imgbox">
               <video autoPlay muted loop controls className="rp center-fit">
-                <source src="./gen_art/full_animation.mp4" type="video/mp4" />
+                <source
+                  src={`${base}/gen_art/full_animation.mp4`}
+                  type="video/mp4"
+                />
                 Your browser does not support the video.
               </video>
               <div className="rp imgcap">
@@ -723,7 +738,10 @@ export default function GenArt() {
         </div>
 
         <div className="rp imgbox">
-          <img className="rp center-fit" src="gen_art/gen_art_back.jpeg" />
+          <img
+            className="rp center-fit"
+            src={`${base}/gen_art/gen_art_back.jpeg`}
+          />
           <div className="rp imgcap">
             The back of the ESP32, showing the lithium ion battery that powers
             the generative display. The ESP32 case was hung with string from the
