@@ -64,6 +64,13 @@ function Home() {
   const projects = [
     {
       id: 1,
+      title: "• final project - computational histories •",
+      date: "5.12.2026",
+      link: "final-project",
+      heroImage: "final_project/hero_alt.jpeg",
+    },
+    {
+      id: 1,
       title: "• capacitive touch phone bag •",
       date: "4.5.2026",
       link: "capacitive-touch",
