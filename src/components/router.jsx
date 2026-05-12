@@ -7,6 +7,8 @@ import GenArt from "../pages/gen_art.jsx";
 import ScrollToTop from "./scrollToTop";
 import TouchSynth from "../pages/cap_touch_interface.jsx";
 import CapacitiveTouch from "../pages/capacitive_touch.jsx";
+import FinalInterface from "../pages/final_interface.jsx";
+import FinalProject from "../pages/final_project.jsx";
 
 const basePath = "/ces-portfolio/";
 
@@ -31,6 +33,8 @@ const PageRouter = () => (
         component={TouchSynth}
       />
       <Route path={`${basePath}capacitive-touch`} component={CapacitiveTouch} />
+      <Route path={`${basePath}final-interface`} component={FinalInterface} />
+      <Route path={`${basePath}final-project`} component={FinalProject} />
       <Route component={NotFound} />
     </Switch>
   </>
